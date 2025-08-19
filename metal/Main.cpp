@@ -98,6 +98,7 @@ bool   logPValue = false;
 bool   trackPositions = false;
 bool   trackEffects = false;
 bool   trackStdErr = false;
+bool   heterogeneity = false;
 int    effectPrintPrecision = 4;
 int    stderrPrintPrecision = 4;
 
@@ -620,16 +621,14 @@ void Analyze(bool heterogeneity) {
         return;
     }
 
-    fprintf(f, "%sMarkerName\tAllele1\tAllele2\t%s%s%s\t%s%s\t%s\tDirection%s%s",
+    fprintf(f, "%sMarkerName\tAllele1\tAllele2\t%s%s%s\t%s%s\t%s\tDirection",
             trackPositions ? "Chromosome\tPosition\t" : "",
             averageFrequencies ? "Freq1\tFreqSE\t" : "",
             minMaxFrequencies ? "MinFreq\tMaxFreq\t" : "",
             useStandardErrors ? "Effect" : "Weight",
             useStandardErrors ? "StdErr" : "Zscore",
             studyOverlap ? "\tN" : "",
-            logPValue ? "log(P)" : "P-value",
-            heterogeneity ? "\tHetISq\tHetChiSq\tHetDf\t" : "",
-            heterogeneity ? (logPValue ? "logHetP" : "HetPVal") : "");
+            logPValue ? "log(P)" : "P-value");
 
     // Add EFFECT tracking columns
     if (trackEffects && effectValues != NULL) {
@@ -650,6 +649,12 @@ void Analyze(bool heterogeneity) {
         for (int i = 0; i < caseCtrlValuesCount; i++) {
             fprintf(f, "\tAF_case_%d\tAF_ctrl_%d\tN_case_%d\tN_ctrl_%d", i + 1, i + 1, i + 1, i + 1);
         }
+    }
+
+    // Add heterogeneity columns at the end
+    if (heterogeneity) {
+        fprintf(f, "\tHetISq\tHetChiSq\tHetDf\t%s", 
+                logPValue ? "logHetP" : "HetPVal");
     }
 
     for (int i = 0; i < customVariables.Length(); i++)
@@ -764,8 +769,8 @@ void Analyze(bool heterogeneity) {
                     }
                 }
             }
-            count++;
 
+            // Add heterogeneity values at the end
             if (heterogeneity) {
                 double p =
                         (hetStatistic[marker] < 1e-7 || hetDegreesOfFreedom[marker] <= 1) ?
@@ -779,6 +784,8 @@ void Analyze(bool heterogeneity) {
                 fprintf(f, "\t%.1f\t%.3f\t%d\t%.4g",
                         I2, hetStatistic[marker], hetDegreesOfFreedom[marker] - 1, p);
             }
+
+            count++;
 
             for (int j = 0; j < customVariables.Length(); j++)
                 fprintf(f, "\t%g", custom[j][marker]);
@@ -2078,7 +2085,7 @@ void RunScript(FILE * file)
         if (input[0] == '#') continue;
 
         if ((tokens[0].MatchesBeginningOf("ANALYZE") == 0 || tokens[0].MatchesBeginningOf("ANALYSE") == 0) && tokens[0].Length() > 1) {
-            Analyze(tokens.Length() > 1 && tokens[1].MatchesBeginningOf("HETEROGENEITY") == 0);
+            Analyze(heterogeneity);
             continue;
         }
 
@@ -2524,6 +2531,18 @@ void RunScript(FILE * file)
             stderrPrintPrecision = tokens[1].AsInteger();
             printf("## Set print pecision for StdErr to %d ...\n", stderrPrintPrecision);
             continue;
+        }
+
+        if (tokens[0].MatchesBeginningOf("HETEROGENEITY") == 0) {
+            if (tokens[1] == "ON") {
+                heterogeneity = true;
+                printf("## Heterogeneity testing enabled\n");
+                continue;
+            } else if (tokens[1].MatchesBeginningOf("OFF") == 0 && tokens[1].Length() > 1) {
+                heterogeneity = false;
+                printf("## Heterogeneity testing disabled\n");
+                continue;
+            }
         }
 
         if (tokens[0].MatchesBeginningOf("ZCUTOFF") == 0) {
