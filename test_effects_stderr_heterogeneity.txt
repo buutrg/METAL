@@ -1,0 +1,46 @@
+# Test file for tracking effects, standard errors, and heterogeneity testing
+# This test combines all three features to ensure they work together properly
+
+# Enable tracking of effects and standard errors
+TRACKEFFECTS ON
+TRACKSTDERR ON
+
+# Set precision for output
+EFFECT_PRINT_PRECISION 6
+STDERR_PRINT_PRECISION 6
+
+# Enable heterogeneity testing
+HETEROGENEITY ON
+
+# Process study1 (uses P_VAL)
+MARKERLABEL SNP
+ALLELELABELS EFFECT_ALLELE NON_EFFECT_ALLELE
+EFFECTLABEL BETA
+STDERRLABEL SE
+PVALUELABEL P_VAL
+WEIGHTLABEL N
+FREQLABEL EFFECT_ALLELE_FREQ
+PROCESS toy_examples/study1_nucleotide_alleles.txt
+
+# Process study2 (uses PVALUE)
+MARKERLABEL SNP
+ALLELELABELS EFFECT_ALLELE NON_EFFECT_ALLELE
+EFFECTLABEL BETA
+STDERRLABEL SE
+PVALUELABEL PVALUE
+WEIGHTLABEL N
+FREQLABEL FREQ_EFFECT
+PROCESS toy_examples/study2_nucleotide_alleles.txt
+
+# Process study3 (uses PVALUE)
+MARKERLABEL SNP
+ALLELELABELS EFFECT_ALLELE NON_EFFECT_ALLELE
+EFFECTLABEL BETA
+STDERRLABEL SE
+PVALUELABEL PVALUE
+WEIGHTLABEL N
+FREQLABEL FREQ_EFFECT
+PROCESS toy_examples/study3_nucleotide_alleles.txt
+
+# Run the analysis
+ANALYZE
