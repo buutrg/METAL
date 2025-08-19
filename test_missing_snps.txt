@@ -1,0 +1,46 @@
+# Test file for checking missing SNPs handling
+# This test uses files with different sets of SNPs to see how METAL handles missing data
+
+# Enable tracking of effects and standard errors
+TRACKEFFECTS ON
+TRACKSTDERR ON
+
+# Set precision for output
+EFFECT_PRINT_PRECISION 6
+STDERR_PRINT_PRECISION 6
+
+# Enable heterogeneity testing
+HETEROGENEITY ON
+
+# Process study1 (uses P_VAL) - has all SNPs
+MARKERLABEL SNP
+ALLELELABELS EFFECT_ALLELE NON_EFFECT_ALLELE
+EFFECTLABEL BETA
+STDERRLABEL SE
+PVALUELABEL P_VAL
+WEIGHTLABEL N
+FREQLABEL EFFECT_ALLELE_FREQ
+PROCESS toy_examples/study1_nucleotide_alleles.txt
+
+# Process study2 (uses PVALUE) - missing rs1003 and rs2001
+MARKERLABEL SNP
+ALLELELABELS EFFECT_ALLELE NON_EFFECT_ALLELE
+EFFECTLABEL BETA
+STDERRLABEL SE
+PVALUELABEL PVALUE
+WEIGHTLABEL N
+FREQLABEL FREQ_EFFECT
+PROCESS toy_examples/study2_missing_snps.txt
+
+# Process study3 (uses PVALUE) - has all SNPs
+MARKERLABEL SNP
+ALLELELABELS EFFECT_ALLELE NON_EFFECT_ALLELE
+EFFECTLABEL BETA
+STDERRLABEL SE
+PVALUELABEL PVALUE
+WEIGHTLABEL N
+FREQLABEL FREQ_EFFECT
+PROCESS toy_examples/study3_nucleotide_alleles.txt
+
+# Run the analysis
+ANALYZE
