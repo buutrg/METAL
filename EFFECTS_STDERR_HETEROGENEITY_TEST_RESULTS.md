@@ -7,7 +7,7 @@
 **Features Tested**:
 - ✅ **TRACKEFFECTS ON**: Track individual effect values from each study
 - ✅ **TRACKSTDERR ON**: Track individual standard error values from each study
-- ✅ **HETEROGENEITY ON**: Enable heterogeneity testing
+- ✅ **ANALYZE HETEROGENEITY**: Enable heterogeneity testing with proper command
 - ✅ **EFFECT_PRINT_PRECISION 6**: High precision for effect values
 - ✅ **STDERR_PRINT_PRECISION 6**: High precision for standard error values
 
@@ -26,23 +26,28 @@
 ### ✅ **Success Indicators**
 - **All 3 files processed successfully**: 10 markers each
 - **Meta-analysis completed**: 10 markers total
+- **Heterogeneity testing enabled**: "Running second pass analysis to evaluate heterogeneity..."
 - **Tracking columns generated**: `Effect_1`, `Effect_2`, `Effect_3`, `StdErr_1`, `StdErr_2`, `StdErr_3`
-- **Heterogeneity testing enabled**: No errors reported
+- **Heterogeneity columns generated**: `HetISq`, `HetChiSq`, `HetDf`, `HetPVal`
 - **High precision output**: 6 decimal places for effects and standard errors
 
 ### 📊 **Output Summary**
 
 **Output File**: `METAANALYSIS1.TBL`
 
-**Columns Generated**:
+**Correct Column Order**:
 1. `MarkerName` - SNP identifier
 2. `Allele1`, `Allele2` - Harmonized alleles
 3. `Weight` - Combined sample size
 4. `Zscore` - Combined Z-statistic
 5. `P-value` - Meta-analysis p-value
 6. `Direction` - Effect direction summary (+++, +-+, etc.)
-7. `Effect_1`, `Effect_2`, `Effect_3` - Individual harmonized effect values
-8. `StdErr_1`, `StdErr_2`, `StdErr_3` - Individual standard error values
+7. **`HetISq`** - I² statistic (0-100% heterogeneity scale)
+8. **`HetChiSq`** - Chi-squared statistic for heterogeneity test
+9. **`HetDf`** - Degrees of freedom for heterogeneity statistic
+10. **`HetPVal`** - P-value for heterogeneity statistic
+11. `Effect_1`, `Effect_2`, `Effect_3` - Individual harmonized effect values
+12. `StdErr_1`, `StdErr_2`, `StdErr_3` - Individual standard error values
 
 ### 🔍 **Key Observations**
 
@@ -57,9 +62,10 @@
 - Consistent with the inverse variance weighting scheme
 
 **3. Heterogeneity Testing**:
-- Successfully enabled without errors
-- Note: Heterogeneity statistics (I², Chi-squared, P-value) are not shown in the basic output
-- These would appear in a more detailed heterogeneity analysis
+- ✅ **Properly enabled** with `ANALYZE HETEROGENEITY` command
+- ✅ **All heterogeneity columns present**: `HetISq`, `HetChiSq`, `HetDf`, `HetPVal`
+- ✅ **Second pass analysis** confirmed in output
+- ✅ **Statistical interpretation** available for each marker
 
 **4. Statistical Significance**:
 - **Most significant**: `rs1004` (P = 3.473e-10)
@@ -73,24 +79,35 @@
 - **Standard errors**: 0.025000, 0.021320, 0.025000
 - **Direction**: +++ (all positive effects)
 - **P-value**: 3.473e-10 (highly significant)
+- **Heterogeneity**: I² = 0.0%, Chi² = 0.594, P = 0.7429 (no significant heterogeneity)
 
-**Mixed Direction Example - rs2002**:
+**High Heterogeneity Example - rs2002**:
 - **Effect values**: 2.988882, -2.608274, 3.155907
 - **Standard errors**: 0.021822, 0.024254, 0.021822
 - **Direction**: +-+ (mixed effects)
 - **P-value**: 0.02346 (moderately significant)
+- **Heterogeneity**: I² = 90.3%, Chi² = 20.562, P = 3.428e-05 (highly significant heterogeneity)
+
+**Mixed Direction Example - rs2001**:
+- **Effect values**: 3.719016, 3.389579, -3.263616
+- **Standard errors**: 0.022942, 0.021822, 0.022942
+- **Direction**: ++- (mixed effects)
+- **P-value**: 0.02257 (moderately significant)
+- **Heterogeneity**: I² = 93.5%, Chi² = 30.770, P = 2.081e-07 (highly significant heterogeneity)
 
 ### ✅ **Feature Integration Verification**
 
-**1. Effect + Standard Error Tracking**:
-- Both features work simultaneously
+**1. Effect + Standard Error + Heterogeneity Tracking**:
+- All three features work simultaneously
 - No conflicts between tracking systems
 - Proper column generation and documentation
+- Correct column order maintained
 
 **2. Heterogeneity Integration**:
-- Heterogeneity testing enabled without affecting tracking
-- All tracking columns preserved in output
-- No interference between features
+- Heterogeneity testing properly enabled with correct command
+- All heterogeneity columns present and correctly positioned
+- Second pass analysis confirmed in output
+- No interference with tracking features
 
 **3. Precision Control**:
 - Both `EFFECT_PRINT_PRECISION` and `STDERR_PRINT_PRECISION` work correctly
@@ -102,14 +119,16 @@
 **✅ All Features Working Correctly**:
 1. **Effect tracking** preserves harmonized effect values from each study
 2. **Standard error tracking** captures individual study precision
-3. **Heterogeneity testing** integrates seamlessly with tracking features
-4. **Precision control** maintains high accuracy in output
-5. **Column mapping** handles different file formats correctly
+3. **Heterogeneity testing** properly enabled with correct command syntax
+4. **Column order** is correct: Direction → HetISq → HetChiSq → HetDf → HetPVal → Effects → StdErrs
+5. **Precision control** maintains high accuracy in output
+6. **Column mapping** handles different file formats correctly
 
 **✅ Integration Success**:
 - Multiple tracking features work together without conflicts
-- Heterogeneity testing doesn't interfere with tracking
+- Heterogeneity testing integrates seamlessly with tracking
 - Output format is clean and well-documented
 - All statistical calculations are accurate
+- Proper command syntax used for heterogeneity testing
 
-This test confirms that the comprehensive tracking system works reliably with heterogeneity testing, providing researchers with detailed individual study data while maintaining the full meta-analysis functionality.
+This test confirms that the comprehensive tracking system works reliably with heterogeneity testing, providing researchers with detailed individual study data, heterogeneity statistics, and maintaining the full meta-analysis functionality with the correct column order.
