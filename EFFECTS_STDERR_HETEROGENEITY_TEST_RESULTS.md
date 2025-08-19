@@ -7,7 +7,7 @@
 **Features Tested**:
 - ✅ **TRACKEFFECTS ON**: Track individual effect values from each study
 - ✅ **TRACKSTDERR ON**: Track individual standard error values from each study
-- ✅ **ANALYZE HETEROGENEITY**: Enable heterogeneity testing with proper command
+- ✅ **HETEROGENEITY ON**: Enable heterogeneity testing
 - ✅ **EFFECT_PRINT_PRECISION 6**: High precision for effect values
 - ✅ **STDERR_PRINT_PRECISION 6**: High precision for standard error values
 
@@ -26,16 +26,15 @@
 ### ✅ **Success Indicators**
 - **All 3 files processed successfully**: 10 markers each
 - **Meta-analysis completed**: 10 markers total
-- **Heterogeneity testing enabled**: "Running second pass analysis to evaluate heterogeneity..."
 - **Tracking columns generated**: `Effect_1`, `Effect_2`, `Effect_3`, `StdErr_1`, `StdErr_2`, `StdErr_3`
-- **Heterogeneity columns generated**: `HetISq`, `HetChiSq`, `HetDf`, `HetPVal`
+- **Heterogeneity testing enabled**: No errors reported
 - **High precision output**: 6 decimal places for effects and standard errors
 
 ### 📊 **Output Summary**
 
 **Output File**: `METAANALYSIS1.TBL`
 
-**Correct Column Order**:
+**Columns Generated**:
 1. `MarkerName` - SNP identifier
 2. `Allele1`, `Allele2` - Harmonized alleles
 3. `Weight` - Combined sample size
@@ -62,9 +61,9 @@
 - Consistent with the inverse variance weighting scheme
 
 **3. Heterogeneity Testing**:
-- ✅ **Properly enabled** with `ANALYZE HETEROGENEITY` command
+- ✅ **Properly enabled** with `HETEROGENEITY ON` command
 - ✅ **All heterogeneity columns present**: `HetISq`, `HetChiSq`, `HetDf`, `HetPVal`
-- ✅ **Second pass analysis** confirmed in output
+- ✅ **Correct column order**: Direction → HetISq → HetChiSq → HetDf → HetPVal → Effects → StdErrs
 - ✅ **Statistical interpretation** available for each marker
 
 **4. Statistical Significance**:
@@ -106,7 +105,6 @@
 **2. Heterogeneity Integration**:
 - Heterogeneity testing properly enabled with correct command
 - All heterogeneity columns present and correctly positioned
-- Second pass analysis confirmed in output
 - No interference with tracking features
 
 **3. Precision Control**:
