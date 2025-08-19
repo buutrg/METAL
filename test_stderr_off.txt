@@ -1,0 +1,29 @@
+# This test verifies that STDERR tracking can be disabled
+# Start with STDERR tracking ON, then turn it OFF
+
+# Enable STDERR tracking initially
+TRACKSTDERR ON
+
+# Configure column mappings for study 1
+MARKER SNP
+WEIGHT N
+ALLELE EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ EFFECT_ALLELE_FREQ
+EFFECT BETA
+STDERR SE
+PVAL P_VAL
+
+# Process first input file
+PROCESS ../toy_examples/study1_nucleotide_alleles.txt
+
+# Now disable STDERR tracking
+TRACKSTDERR OFF
+
+# Process second input file (should not track STDERR)
+PROCESS ../toy_examples/study2_nucleotide_alleles.txt
+
+# Process third input file (should not track STDERR)
+PROCESS ../toy_examples/study3_nucleotide_alleles.txt
+
+# Perform meta-analysis
+ANALYZE

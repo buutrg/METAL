@@ -1,0 +1,36 @@
+# Test for combined EFFECT and case/control tracking
+# This demonstrates both TRACKEFFECTS and TRACKCASECTRL functionality
+
+# Enable both tracking features
+TRACKEFFECTS ON
+TRACKCASECTRL ON
+
+# Set column labels for case/control data
+AFCASELABEL AF_CASE
+AFCTRLLABEL AF_CTRL
+NCASELABEL N_CASE
+NCTRLLABEL N_CTRL
+
+# First study configuration
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+# Second study configuration
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/MAGIC_FUSION_Results.txt.gz
+
+ANALYZE

@@ -55,6 +55,10 @@ public:
     int secondColumn;
     int stderrColumn;
     int freqColumn;
+    int afCaseColumn;
+    int afCtrlColumn;
+    int nCaseColumn;
+    int nCtrlColumn;
     int strandColumn;
     int chromosomeColumn;
     int positionColumn;

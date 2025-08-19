@@ -1,0 +1,66 @@
+# Test for EFFECT tracking with multiple input files (3+ studies)
+# This demonstrates the TRACKEFFECTS functionality with multiple studies
+
+# Enable EFFECT tracking
+TRACKEFFECTS ON
+
+# Set output precision for better readability
+EFFECT_PRINT_PRECISION 4
+
+# First study - DGI study
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+# Second study - MAGIC study
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/MAGIC_FUSION_Results.txt.gz
+
+# Third study - SARDINIA study
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/magic_SARDINIA.tbl
+
+# Fourth study - Process DGI again with different configuration
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+# Fifth study - Process MAGIC again with different configuration
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/MAGIC_FUSION_Results.txt.gz
+
+# Run meta-analysis
+ANALYZE

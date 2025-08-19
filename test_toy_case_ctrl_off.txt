@@ -1,0 +1,29 @@
+# Test for case/control tracking disabled with toy examples
+# This demonstrates the TRACKCASECTRL OFF functionality with real data
+
+# Disable case/control tracking
+TRACKCASECTRL OFF
+
+# First study configuration
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS toy_examples/study1_with_case_ctrl.txt
+
+# Second study configuration
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS toy_examples/study2_with_case_ctrl.txt
+
+ANALYZE

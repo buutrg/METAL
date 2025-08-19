@@ -29,6 +29,7 @@
 # ADDFILTER SNP IN (rs10830963,rs563694)
 # VERBOSE ON
 
+TRACKEFFECTS ON
 OVERLAP ON
 
 # Describe and process the DGI input files

@@ -1,0 +1,64 @@
+# This test demonstrates SCHEME STDERR (inverse variance weighted meta-analysis)
+# Enable all tracking features with standard error weighting
+
+# Enable all tracking features
+TRACKEFFECTS ON
+TRACKSTDERR ON
+TRACKCASECTRL ON
+TRACKPOSITIONS ON
+
+# Set precision for output
+EFFECT_PRINT_PRECISION 4
+STDERR_PRINT_PRECISION 4
+
+# Set meta-analysis scheme to use standard errors (inverse variance weighted)
+SCHEME STDERR
+
+# Set column labels for case/control data
+AFCASELABEL AF_CASE
+AFCTRLLABEL AF_CTRL
+NCASELABEL N_CASE
+NCTRLLABEL N_CTRL
+
+# Set column labels for position tracking
+CHROMOSOMELABEL CHR
+POSITIONLABEL POS
+
+# Configure column mappings for study 1
+MARKER SNP
+WEIGHT N
+ALLELE EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ EFFECT_ALLELE_FREQ
+EFFECT BETA
+STDERR SE
+PVAL P_VAL
+
+# Process first input file
+PROCESS ../toy_examples/study1_nucleotide_alleles.txt
+
+# Configure column mappings for study 2
+MARKER SNP
+WEIGHT N
+ALLELE EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ FREQ_EFFECT
+EFFECT BETA
+STDERR SE
+PVAL PVALUE
+
+# Process second input file
+PROCESS ../toy_examples/study2_nucleotide_alleles.txt
+
+# Configure column mappings for study 3
+MARKER SNP
+WEIGHT N
+ALLELE EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ FREQ_EFFECT
+EFFECT BETA
+STDERR SE
+PVAL PVALUE
+
+# Process third input file
+PROCESS ../toy_examples/study3_nucleotide_alleles.txt
+
+# Perform meta-analysis
+ANALYZE

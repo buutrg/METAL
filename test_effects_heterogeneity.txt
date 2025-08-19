@@ -1,0 +1,26 @@
+# Test for EFFECT tracking with heterogeneity analysis
+TRACKEFFECTS ON
+
+# First study
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+# Second study
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/MAGIC_FUSION_Results.txt.gz
+
+ANALYZE HETEROGENEITY

@@ -50,6 +50,20 @@ StringArray positions;
 
 StringArray filenames;
 StringArray directions;
+Vector * effectValues = NULL;  // Track EFFECT values from each input file
+int effectValuesCount = 0;
+
+// Track STDERR values from each input file
+Vector * stderrValues = NULL;  // Track STDERR values from each input file
+int stderrValuesCount = 0;
+
+// Track case/control frequencies and sample sizes from each input file
+Vector * afCaseValues = NULL;  // Track AF_case values from each input file
+Vector * afCtrlValues = NULL;  // Track AF_ctrl values from each input file
+Vector * nCaseValues = NULL;   // Track N_case values from each input file
+Vector * nCtrlValues = NULL;   // Track N_ctrl values from each input file
+int caseCtrlValuesCount = 0;
+bool trackCaseCtrl = false;
 FileSummary * processedFiles = NULL;
 
 double weight = 1.0;
@@ -62,6 +76,10 @@ String effectLabel  = "EFFECT";
 String stderrLabel  = "STDERR";
 String strandLabel  = "STRAND";
 String frequencyLabel = "FREQ";
+String afCaseLabel = "AF_CASE";
+String afCtrlLabel = "AF_CTRL";
+String nCaseLabel = "N_CASE";
+String nCtrlLabel = "N_CTRL";
 String firstAllele  = "ALLELE1";
 String secondAllele = "ALLELE2";
 String chromosomeLabel = "CHROMOSOME";
@@ -78,6 +96,8 @@ bool   strictColumnCounting = true;
 bool   verbose = false;
 bool   logPValue = false;
 bool   trackPositions = false;
+bool   trackEffects = false;
+bool   trackStdErr = false;
 int    effectPrintPrecision = 4;
 int    stderrPrintPrecision = 4;
 
@@ -230,6 +250,34 @@ void ClearAll() {
     original_flipped.Clear();
     filenames.Clear();
     directions.Clear();
+    
+    // Clean up effectValues array
+    if (effectValues != NULL) {
+        delete[] effectValues;
+        effectValues = NULL;
+    }
+    effectValuesCount = 0;
+    
+    // Clean up stderrValues array
+    if (stderrValues != NULL) {
+        delete[] stderrValues;
+        stderrValues = NULL;
+    }
+    stderrValuesCount = 0;
+    
+    // Clean up case/control arrays
+    if (afCaseValues != NULL) {
+        delete[] afCaseValues;
+        delete[] afCtrlValues;
+        delete[] nCaseValues;
+        delete[] nCtrlValues;
+        afCaseValues = NULL;
+        afCtrlValues = NULL;
+        nCaseValues = NULL;
+        nCtrlValues = NULL;
+    }
+    caseCtrlValuesCount = 0;
+    
     customVariables.Clear();
     customLabels.Clear();
 
@@ -583,6 +631,27 @@ void Analyze(bool heterogeneity) {
             heterogeneity ? "\tHetISq\tHetChiSq\tHetDf\t" : "",
             heterogeneity ? (logPValue ? "logHetP" : "HetPVal") : "");
 
+    // Add EFFECT tracking columns
+    if (trackEffects && effectValues != NULL) {
+        for (int i = 0; i < effectValuesCount; i++) {
+            fprintf(f, "\tEffect_%d", i + 1);
+        }
+    }
+
+    // Add STDERR tracking columns
+    if (trackStdErr && stderrValues != NULL) {
+        for (int i = 0; i < stderrValuesCount; i++) {
+            fprintf(f, "\tStdErr_%d", i + 1);
+        }
+    }
+
+    // Add case/control tracking columns
+    if (trackCaseCtrl && afCaseValues != NULL) {
+        for (int i = 0; i < caseCtrlValuesCount; i++) {
+            fprintf(f, "\tAF_case_%d\tAF_ctrl_%d\tN_case_%d\tN_ctrl_%d", i + 1, i + 1, i + 1, i + 1);
+        }
+    }
+
     for (int i = 0; i < customVariables.Length(); i++)
         fprintf(f, "\t%s", (const char *) customVariables[i]);
 
@@ -660,6 +729,41 @@ void Analyze(bool heterogeneity) {
             fprintf(f, "%s\t%s",
                     (const char *) pvalue,
                     (const char *) direction);
+
+            // Add EFFECT tracking values
+            if (trackEffects && effectValues != NULL) {
+                for (int j = 0; j < effectValuesCount; j++) {
+                    if (marker < effectValues[j].Length()) {
+                        fprintf(f, "\t%.*f", effectPrintPrecision, effectValues[j][marker]);
+                    } else {
+                        fprintf(f, "\tNA");
+                    }
+                }
+            }
+
+            // Add STDERR tracking values
+            if (trackStdErr && stderrValues != NULL) {
+                for (int j = 0; j < stderrValuesCount; j++) {
+                    if (marker < stderrValues[j].Length()) {
+                        fprintf(f, "\t%.*f", stderrPrintPrecision, stderrValues[j][marker]);
+                    } else {
+                        fprintf(f, "\tNA");
+                    }
+                }
+            }
+
+            // Add case/control tracking values
+            if (trackCaseCtrl && afCaseValues != NULL) {
+                for (int j = 0; j < caseCtrlValuesCount; j++) {
+                    if (marker < afCaseValues[j].Length()) {
+                        fprintf(f, "\t%.4f\t%.4f\t%.0f\t%.0f", 
+                                afCaseValues[j][marker], afCtrlValues[j][marker], 
+                                nCaseValues[j][marker], nCtrlValues[j][marker]);
+                    } else {
+                        fprintf(f, "\tNA\tNA\tNA\tNA");
+                    }
+                }
+            }
             count++;
 
             if (heterogeneity) {
@@ -750,6 +854,39 @@ void Analyze(bool heterogeneity) {
 
     for (int i = 0; i < customVariables.Length(); i++)
         fprintf(f, "# %-9s - custom variable %d\n", (const char *) customVariables[i], i + 1);
+
+    // Add documentation for EFFECT tracking columns
+    if (trackEffects && effectValues != NULL) {
+        fprintf(f, "\n# Effect tracking columns (one per input file):\n");
+        for (int i = 0; i < effectValuesCount; i++) {
+            fprintf(f, "# Effect_%d - harmonized effect value from input file %d (%s)\n", 
+                    i + 1, i + 1, (const char *) filenames[i]);
+        }
+    }
+
+    // Add documentation for STDERR tracking columns
+    if (trackStdErr && stderrValues != NULL) {
+        fprintf(f, "\n# Standard error tracking columns (one per input file):\n");
+        for (int i = 0; i < stderrValuesCount; i++) {
+            fprintf(f, "# StdErr_%d - standard error value from input file %d (%s)\n", 
+                    i + 1, i + 1, (const char *) filenames[i]);
+        }
+    }
+
+    // Add documentation for case/control tracking columns
+    if (trackCaseCtrl && afCaseValues != NULL) {
+        fprintf(f, "\n# Case/control tracking columns (four per input file):\n");
+        for (int i = 0; i < caseCtrlValuesCount; i++) {
+            fprintf(f, "# AF_case_%d - harmonized case allele frequency from input file %d (%s)\n", 
+                    i + 1, i + 1, (const char *) filenames[i]);
+            fprintf(f, "# AF_ctrl_%d - harmonized control allele frequency from input file %d (%s)\n", 
+                    i + 1, i + 1, (const char *) filenames[i]);
+            fprintf(f, "# N_case_%d - case sample size from input file %d (%s)\n", 
+                    i + 1, i + 1, (const char *) filenames[i]);
+            fprintf(f, "# N_ctrl_%d - control sample size from input file %d (%s)\n", 
+                    i + 1, i + 1, (const char *) filenames[i]);
+        }
+    }
 
     fprintf(f, "\n# Input for this meta-analysis was stored in the files:\n");
     for (int i = 0; i < filenames.Length(); i++)
@@ -860,6 +997,12 @@ void ProcessFile(String & filename, FileSummary * history) {
         return;
     }
 
+    // Case/control column indices
+    int afCaseColumn = history->afCaseColumn = tokens.SlowFind(afCaseLabel);
+    int afCtrlColumn = history->afCtrlColumn = tokens.SlowFind(afCtrlLabel);
+    int nCaseColumn = history->nCaseColumn = tokens.SlowFind(nCaseLabel);
+    int nCtrlColumn = history->nCtrlColumn = tokens.SlowFind(nCtrlLabel);
+
     int strandColumn = history->strandColumn = tokens.SlowFind(strandLabel);
     if (strandColumn < 0 && useStrand) {
         printf("## ERROR: Strand column labeleled '%s' not found\n\n", (const char *) strandLabel);
@@ -956,6 +1099,27 @@ void ProcessFile(String & filename, FileSummary * history) {
     String direction;
     direction.Fill('?', allele1.Length());
 
+    // Vector to store EFFECT values for current file
+    Vector currentEffects;
+    if (trackEffects) {
+        currentEffects.Dimension(allele1.Length(), 0.0);
+    }
+
+    // Vector to store STDERR values for current file
+    Vector currentStdErr;
+    if (trackStdErr) {
+        currentStdErr.Dimension(allele1.Length(), 0.0);
+    }
+
+    // Vectors to store case/control values for current file
+    Vector currentAfCase, currentAfCtrl, currentNCase, currentNCtrl;
+    if (trackCaseCtrl) {
+        currentAfCase.Dimension(allele1.Length(), 0.0);
+        currentAfCtrl.Dimension(allele1.Length(), 0.0);
+        currentNCase.Dimension(allele1.Length(), 0.0);
+        currentNCtrl.Dimension(allele1.Length(), 0.0);
+    }
+
     int invalid = 0;
     int invalidEffect = 0;
     int badAlleles = 0;
@@ -1020,6 +1184,24 @@ void ProcessFile(String & filename, FileSummary * history) {
         if (marker < 0) {
             marker = CreateNewMarkerId(tokens[markerColumn]);
             direction += '?';
+            
+            // Extend currentEffects Vector for new marker
+            if (trackEffects) {
+                currentEffects.Push(0.0);
+            }
+            
+            // Extend currentStdErr Vector for new marker
+            if (trackStdErr) {
+                currentStdErr.Push(0.0);
+            }
+            
+            // Extend case/control Vectors for new marker
+            if (trackCaseCtrl) {
+                currentAfCase.Push(0.0);
+                currentAfCtrl.Push(0.0);
+                currentNCase.Push(0.0);
+                currentNCtrl.Push(0.0);
+            }
         }
 
         double w, z;
@@ -1082,6 +1264,9 @@ void ProcessFile(String & filename, FileSummary * history) {
             z = eff;
             w = 1.0 / (sd * sd);
         }
+
+        // Store original effect value for direction calculation (before any transformations)
+        double originalEffectForDirection = z;
 
         double freq = 0.0;
         if (useFrequencies)
@@ -1158,7 +1343,48 @@ void ProcessFile(String & filename, FileSummary * history) {
             }
         }
 
+        // Calculate direction based on harmonized effect value (after harmonization)
+        // Use the harmonized z value which includes all flipping operations
         direction[marker] = z == 0.0 ? '0' : (z > 0.0 ? '+' : '-');
+
+        // Store harmonized EFFECT value for tracking (after flipping)
+        if (trackEffects && effectColumn >= 0) {
+            // Use the harmonized z value which includes all flipping operations
+            currentEffects[marker] = z;
+        }
+
+        // Store STDERR value for tracking
+        if (trackStdErr && stderrColumn >= 0) {
+            // Store the standard error value (w is the weight, so sqrt(1/w) is the standard error)
+            double stderrValue = useStandardErrors ? tokens[stderrColumn].AsDouble() : sqrt(1.0 / w);
+            currentStdErr[marker] = stderrValue;
+        }
+
+        // Store harmonized case/control values for tracking (after flipping)
+        if (trackCaseCtrl) {
+            if (afCaseColumn >= 0) {
+                // Apply the same harmonization as the main frequency
+                double afCase = tokens[afCaseColumn].AsDouble();
+                if (original_flipped[marker] == 'Y') {
+                    afCase = 1.0 - afCase;  // Flip frequency when alleles are flipped
+                }
+                currentAfCase[marker] = afCase;
+            }
+            if (afCtrlColumn >= 0) {
+                // Apply the same harmonization as the main frequency
+                double afCtrl = tokens[afCtrlColumn].AsDouble();
+                if (original_flipped[marker] == 'Y') {
+                    afCtrl = 1.0 - afCtrl;  // Flip frequency when alleles are flipped
+                }
+                currentAfCtrl[marker] = afCtrl;
+            }
+            if (nCaseColumn >= 0) {
+                currentNCase[marker] = tokens[nCaseColumn].AsDouble();
+            }
+            if (nCtrlColumn >= 0) {
+                currentNCtrl[marker] = tokens[nCtrlColumn].AsDouble();
+            }
+        }
 
         if (verbose) {
             String al1 = allele1[marker];
@@ -1260,6 +1486,72 @@ void ProcessFile(String & filename, FileSummary * history) {
     FilterSummary();
 
     directions.Push(direction);
+
+    // Add current EFFECT values to global array
+    if (trackEffects) {
+        // Reallocate effectValues array
+        Vector * newEffectValues = new Vector[effectValuesCount + 1];
+        for (int i = 0; i < effectValuesCount; i++) {
+            newEffectValues[i] = effectValues[i];
+        }
+        newEffectValues[effectValuesCount] = currentEffects;
+        
+        if (effectValues != NULL) {
+            delete[] effectValues;
+        }
+        effectValues = newEffectValues;
+        effectValuesCount++;
+    }
+
+    // Add current STDERR values to global array
+    if (trackStdErr) {
+        // Reallocate stderrValues array
+        Vector * newStdErrValues = new Vector[stderrValuesCount + 1];
+        for (int i = 0; i < stderrValuesCount; i++) {
+            newStdErrValues[i] = stderrValues[i];
+        }
+        newStdErrValues[stderrValuesCount] = currentStdErr;
+        
+        if (stderrValues != NULL) {
+            delete[] stderrValues;
+        }
+        stderrValues = newStdErrValues;
+        stderrValuesCount++;
+    }
+
+    // Add current case/control values to global arrays
+    if (trackCaseCtrl) {
+        // Reallocate case/control arrays
+        Vector * newAfCaseValues = new Vector[caseCtrlValuesCount + 1];
+        Vector * newAfCtrlValues = new Vector[caseCtrlValuesCount + 1];
+        Vector * newNCaseValues = new Vector[caseCtrlValuesCount + 1];
+        Vector * newNCtrlValues = new Vector[caseCtrlValuesCount + 1];
+        
+        for (int i = 0; i < caseCtrlValuesCount; i++) {
+            newAfCaseValues[i] = afCaseValues[i];
+            newAfCtrlValues[i] = afCtrlValues[i];
+            newNCaseValues[i] = nCaseValues[i];
+            newNCtrlValues[i] = nCtrlValues[i];
+        }
+        
+        newAfCaseValues[caseCtrlValuesCount] = currentAfCase;
+        newAfCtrlValues[caseCtrlValuesCount] = currentAfCtrl;
+        newNCaseValues[caseCtrlValuesCount] = currentNCase;
+        newNCtrlValues[caseCtrlValuesCount] = currentNCtrl;
+        
+        if (afCaseValues != NULL) {
+            delete[] afCaseValues;
+            delete[] afCtrlValues;
+            delete[] nCaseValues;
+            delete[] nCtrlValues;
+        }
+        
+        afCaseValues = newAfCaseValues;
+        afCtrlValues = newAfCtrlValues;
+        nCaseValues = newNCaseValues;
+        nCtrlValues = newNCtrlValues;
+        caseCtrlValuesCount++;
+    }
 
     history->genomicControl = 1.0;
     if (genomicControl) {
@@ -1689,12 +1981,21 @@ void ShowHelp(bool startup)
                    "#   MINMAXFREQ       [ON|OFF]                    (%s = %s)\n"
                    "#   FREQLABEL        [LABEL]                     (%s = '%s')\n"
                    "#\n"
+                   "# Options to enable tracking of case/control data ...\n"
+                   "#   AFCASELABEL      [LABEL]                     (%s = '%s')\n"
+                   "#   AFCTRLLABEL      [LABEL]                     (%s = '%s')\n"
+                   "#   NCASELABEL       [LABEL]                     (%s = '%s')\n"
+                   "#   NCTRLLABEL       [LABEL]                     (%s = '%s')\n"
+                   "#\n"
                    "# Options to enable tracking of user defined variables ...\n"
                    "#   CUSTOMVARIABLE   [VARNAME]\n"
                    "#   LABEL            [VARNAME] AS [HEADER]\n"
                    "#\n"
                    "# Options to enable tracking of chromosomes and positions ...\n"
                    "#   TRACKPOSITIONS   [ON|OFF]                    (%s = %s\n"
+                   "#   TRACKEFFECTS     [ON|OFF]                    (%s = %s\n"
+                   "#   TRACKSTDERR      [ON|OFF]                    (%s = %s\n"
+                   "#   TRACKCASECTRL    [ON|OFF]                    (%s = %s\n"
                    "#   CHROMOSOMELABEL  [LABEL]                     (%s = '%s')\n"
                    "#   POSITIONLABEL    [LABEL]                     (%s = '%s')\n"
                    "#\n"
@@ -1736,7 +2037,14 @@ void ShowHelp(bool startup)
            setting, averageFrequencies ? "ON" : "OFF",
            setting, minMaxFrequencies ? "ON" : "OFF",
            setting, (const char *) frequencyLabel,
+           setting, (const char *) afCaseLabel,
+           setting, (const char *) afCtrlLabel,
+           setting, (const char *) nCaseLabel,
+           setting, (const char *) nCtrlLabel,
            setting, trackPositions ? "ON" : "OFF",
+           setting, trackEffects ? "ON" : "OFF",
+           setting, trackStdErr ? "ON" : "OFF",
+           setting, trackCaseCtrl ? "ON" : "OFF",
            setting, (const char *) chromosomeLabel,
            setting, (const char *) positionLabel,
            setting, useStrand ? "ON" : "OFF",
@@ -2013,6 +2321,30 @@ void RunScript(FILE * file)
             continue;
         }
 
+        if (tokens[0].MatchesBeginningOf("AFCASELABEL") == 0 && tokens[0].Length() > 1) {
+            afCaseLabel = tokens[1];
+            printf("## Set AF_case header to %s ...\n", (const char *) afCaseLabel);
+            continue;
+        }
+
+        if (tokens[0].MatchesBeginningOf("AFCTRLLABEL") == 0 && tokens[0].Length() > 1) {
+            afCtrlLabel = tokens[1];
+            printf("## Set AF_ctrl header to %s ...\n", (const char *) afCtrlLabel);
+            continue;
+        }
+
+        if (tokens[0].MatchesBeginningOf("NCASELABEL") == 0 && tokens[0].Length() > 1) {
+            nCaseLabel = tokens[1];
+            printf("## Set N_case header to %s ...\n", (const char *) nCaseLabel);
+            continue;
+        }
+
+        if (tokens[0].MatchesBeginningOf("NCTRLLABEL") == 0 && tokens[0].Length() > 1) {
+            nCtrlLabel = tokens[1];
+            printf("## Set N_ctrl header to %s ...\n", (const char *) nCtrlLabel);
+            continue;
+        }
+
         if (tokens[0].MatchesBeginningOf("SOURCE") == 0 && tokens[0].Length() > 1) {
             FILE *ifile = fopen(tokens[1], "rt");
 
@@ -2133,6 +2465,51 @@ void RunScript(FILE * file)
             } else if (tokens[1].MatchesBeginningOf("OFF") == 0 && tokens[1].Length() > 1) {
                 trackPositions = false;
                 printf("## Tracking of chromosomes and positions is disabled\n");
+                continue;
+            }
+        }
+
+        if (tokens[0].MatchesBeginningOf("TRACKEFFECTS") == 0) {
+            if (markerLookup.Entries()) {
+                printf("## ERROR: Meta-analysis in progress - before turning on/off tracking of effect values, use CLEAR command\n");
+                continue;
+            } else if (tokens[1] == "ON"){
+                trackEffects = true;
+                printf("## Tracking of effect values from each input file is enabled\n");
+                continue;
+            } else if (tokens[1].MatchesBeginningOf("OFF") == 0 && tokens[1].Length() > 1) {
+                trackEffects = false;
+                printf("## Tracking of effect values from each input file is disabled\n");
+                continue;
+            }
+        }
+
+        if (tokens[0].MatchesBeginningOf("TRACKSTDERR") == 0) {
+            if (markerLookup.Entries()) {
+                printf("## ERROR: Meta-analysis in progress - before turning on/off tracking of standard error values, use CLEAR command\n");
+                continue;
+            } else if (tokens[1] == "ON"){
+                trackStdErr = true;
+                printf("## Tracking of standard error values from each input file is enabled\n");
+                continue;
+            } else if (tokens[1].MatchesBeginningOf("OFF") == 0 && tokens[1].Length() > 1) {
+                trackStdErr = false;
+                printf("## Tracking of standard error values from each input file is disabled\n");
+                continue;
+            }
+        }
+
+        if (tokens[0].MatchesBeginningOf("TRACKCASECTRL") == 0) {
+            if (markerLookup.Entries()) {
+                printf("## ERROR: Meta-analysis in progress - before turning on/off tracking of case/control values, use CLEAR command\n");
+                continue;
+            } else if (tokens[1] == "ON"){
+                trackCaseCtrl = true;
+                printf("## Tracking of case/control values from each input file is enabled\n");
+                continue;
+            } else if (tokens[1].MatchesBeginningOf("OFF") == 0 && tokens[1].Length() > 1) {
+                trackCaseCtrl = false;
+                printf("## Tracking of case/control values from each input file is disabled\n");
                 continue;
             }
         }

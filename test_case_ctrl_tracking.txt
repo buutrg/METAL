@@ -1,0 +1,43 @@
+# Test for case/control tracking feature
+# This demonstrates the TRACKCASECTRL functionality with 4 columns
+
+# Enable case/control tracking
+TRACKCASECTRL ON
+
+# Set column labels for case/control data
+AFCASELABEL AF_CASE
+AFCTRLLABEL AF_CTRL
+NCASELABEL N_CASE
+NCTRLLABEL N_CTRL
+
+# First study configuration
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+AF_CASE  AF_CASE
+AF_CTRL  AF_CTRL
+N_CASE   N_CASE
+N_CTRL   N_CTRL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+# Second study configuration
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+AF_CASE  AF_CASE
+AF_CTRL  AF_CTRL
+N_CASE   N_CASE
+N_CTRL   N_CTRL
+
+PROCESS examples/OriginalExamples/MAGIC_FUSION_Results.txt.gz
+
+ANALYZE

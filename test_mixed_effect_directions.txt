@@ -1,0 +1,51 @@
+# Test script for mixed effect directions with harmonization
+# This demonstrates how tracking handles different effect directions across studies
+
+# Enable both EFFECT and case/control tracking
+TRACKEFFECTS ON
+TRACKCASECTRL ON
+
+# Set column labels for case/control data
+AFCASELABEL AF_CASE
+AFCTRLLABEL AF_CTRL
+NCASELABEL N_CASE
+NCTRLLABEL N_CTRL
+
+# Configure column mappings for study 1
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+# Process study 1 with mixed effect directions
+PROCESS ../toy_examples/study1_mixed_effects.txt
+
+# Configure column mappings for study 2 (different column names)
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+# Process study 2 with opposite effect directions for some SNPs
+PROCESS ../toy_examples/study2_mixed_effects.txt
+
+# Configure column mappings for study 3
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+# Process study 3 with different pattern of effect directions
+PROCESS ../toy_examples/study3_mixed_effects.txt
+
+# Perform meta-analysis
+ANALYZE

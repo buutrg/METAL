@@ -1,0 +1,72 @@
+# Test file for harmonized EFFECT tracking feature
+# This test demonstrates the TRACKEFFECTS functionality with multiple input files
+
+# Enable EFFECT tracking
+TRACKEFFECTS ON
+
+# Set output precision for better readability
+EFFECT_PRINT_PRECISION 4
+
+# First file configuration - DGI study
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+# Second file configuration - MAGIC study
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/MAGIC_FUSION_Results.txt.gz
+
+# Third file configuration - SARDINIA study
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/magic_SARDINIA.tbl
+
+# Run meta-analysis
+ANALYZE
+
+# Clear and test with EFFECT tracking disabled
+CLEAR
+
+TRACKEFFECTS OFF
+
+# Process same files without EFFECT tracking
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+MARKER   SNP
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     FREQ_EFFECT
+WEIGHT   N
+EFFECT   BETA
+STDERR   SE
+PVAL     PVALUE
+
+PROCESS examples/OriginalExamples/MAGIC_FUSION_Results.txt.gz
+
+ANALYZE HETEROGENEITY

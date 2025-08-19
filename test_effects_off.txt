@@ -1,0 +1,15 @@
+# Test for EFFECT tracking disabled
+TRACKEFFECTS OFF
+
+# Simple configuration
+MARKER   SNP
+WEIGHT   N
+ALLELE   EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ     EFFECT_ALLELE_FREQ
+EFFECT   BETA
+STDERR   SE
+PVAL     P_VAL
+
+PROCESS examples/OriginalExamples/DGI_three_regions.txt
+
+ANALYZE

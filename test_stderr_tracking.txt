@@ -1,0 +1,45 @@
+# This test demonstrates the TRACKSTDERR functionality with multiple input files
+# Enable tracking of standard error values from each input file
+TRACKSTDERR ON
+
+# Set precision for standard error output
+STDERR_PRINT_PRECISION 4
+
+# Configure column mappings for study 1
+MARKER SNP
+WEIGHT N
+ALLELE EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ EFFECT_ALLELE_FREQ
+EFFECT BETA
+STDERR SE
+PVAL P_VAL
+
+# Process first input file
+PROCESS ../toy_examples/study1_nucleotide_alleles.txt
+
+# Configure column mappings for study 2
+MARKER SNP
+WEIGHT N
+ALLELE EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ FREQ_EFFECT
+EFFECT BETA
+STDERR SE
+PVAL PVALUE
+
+# Process second input file
+PROCESS ../toy_examples/study2_nucleotide_alleles.txt
+
+# Configure column mappings for study 3
+MARKER SNP
+WEIGHT N
+ALLELE EFFECT_ALLELE NON_EFFECT_ALLELE
+FREQ FREQ_EFFECT
+EFFECT BETA
+STDERR SE
+PVAL PVALUE
+
+# Process third input file
+PROCESS ../toy_examples/study3_nucleotide_alleles.txt
+
+# Perform meta-analysis
+ANALYZE

@@ -1,0 +1,35 @@
+# This file contains a short description of the columns in the
+# meta-analysis summary file, named 'METAANALYSIS1.TBL'
+
+# Marker      - this is the marker name
+# Allele1     - the first allele for this marker in the first file where it occurs
+# Allele2     - the second allele for this marker in the first file where it occurs
+# Weight      - the sum of the individual study weights (typically, N) for this marker
+# Z-score     - the combined z-statistic for this marker
+# P-value     - meta-analysis p-value
+# Direction   - summary of effect direction for each study, with one '+' or '-' per study
+
+# Effect tracking columns (one per input file):
+# Effect_1 - harmonized effect value from input file 1 (../toy_examples/study1_varying_case_ctrl.txt)
+# Effect_2 - harmonized effect value from input file 2 (../toy_examples/study2_varying_case_ctrl.txt)
+# Effect_3 - harmonized effect value from input file 3 (../toy_examples/study3_varying_case_ctrl.txt)
+
+# Case/control tracking columns (four per input file):
+# AF_case_1 - harmonized case allele frequency from input file 1 (../toy_examples/study1_varying_case_ctrl.txt)
+# AF_ctrl_1 - harmonized control allele frequency from input file 1 (../toy_examples/study1_varying_case_ctrl.txt)
+# N_case_1 - case sample size from input file 1 (../toy_examples/study1_varying_case_ctrl.txt)
+# N_ctrl_1 - control sample size from input file 1 (../toy_examples/study1_varying_case_ctrl.txt)
+# AF_case_2 - harmonized case allele frequency from input file 2 (../toy_examples/study2_varying_case_ctrl.txt)
+# AF_ctrl_2 - harmonized control allele frequency from input file 2 (../toy_examples/study2_varying_case_ctrl.txt)
+# N_case_2 - case sample size from input file 2 (../toy_examples/study2_varying_case_ctrl.txt)
+# N_ctrl_2 - control sample size from input file 2 (../toy_examples/study2_varying_case_ctrl.txt)
+# AF_case_3 - harmonized case allele frequency from input file 3 (../toy_examples/study3_varying_case_ctrl.txt)
+# AF_ctrl_3 - harmonized control allele frequency from input file 3 (../toy_examples/study3_varying_case_ctrl.txt)
+# N_case_3 - case sample size from input file 3 (../toy_examples/study3_varying_case_ctrl.txt)
+# N_ctrl_3 - control sample size from input file 3 (../toy_examples/study3_varying_case_ctrl.txt)
+
+# Input for this meta-analysis was stored in the files:
+# --> Input File 1 : ../toy_examples/study1_varying_case_ctrl.txt
+# --> Input File 2 : ../toy_examples/study2_varying_case_ctrl.txt
+# --> Input File 3 : ../toy_examples/study3_varying_case_ctrl.txt
+
